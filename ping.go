@@ -1,4 +1,5 @@
-// Program sends an incrementing integer to the ping channel every second. The programs runs a default number of seconds or as many as are set by using the -duration flag.
+// Program sends an incrementing integer to the ping channel every second.
+// The programs runs a default number of seconds or as many as are set by using the -duration flag.
 // Purpose is to get to know the context and flags package, and get hands dirty with channels and go routines.
 package main
 
