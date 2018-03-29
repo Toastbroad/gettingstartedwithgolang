@@ -1,3 +1,5 @@
+// Program sends an incrementing integer to the ping channel every second. The programs runs a default number of seconds or as many as are set by using the -duration flag.
+// Purpose is to get to know the context and flags package, and get hands dirty with channels and go routines.
 package main
 
 import (
@@ -9,13 +11,15 @@ import (
 )
 
 func main() {
+	const defaultDuration = 3
+
 	ping := make(chan int)
 
-	duration := flag.Int("duration", 3, "specify how many seconds to run")
+	duration := flag.Int("duration", defaultDuration, "specify how many seconds to run")
 	flag.Parse()
 
 	if *duration <= 0 {
-		log.Fatal("WTF")
+		log.Fatal("duration must be an integer greater than 0")
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*time.Duration(*duration))
