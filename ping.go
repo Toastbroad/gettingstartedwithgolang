@@ -11,11 +11,24 @@ import (
 	"time"
 )
 
+type pinger struct {
+	ping chan int
+}
+
+func newPinger() *pinger {
+	return &pinger{
+		ping: make(chan int),
+	}
+}
+
+func (pinger *pinger) getPing() <-chan int {
+	return pinger.ping
+}
+
 func main() {
 	const defaultDuration = 3
 
-	// Create a channel of integers to send the incrementing integer to.
-	ping := make(chan int)
+	pinger := newPinger()
 
 	// Get duration from -duration flag or use default duration. Flag needs to be parsed, otherwise fall back to defaultDuration.
 	duration := flag.Int("duration", defaultDuration, "specify how many seconds to run")
@@ -31,6 +44,7 @@ func main() {
 
 	// Handle the ping event by printing the value to standard output.
 	go func() {
+		ping := pinger.getPing()
 		for i := range ping {
 			fmt.Printf("%d \n", i)
 		}
@@ -46,10 +60,10 @@ func main() {
 			if err != nil {
 				fmt.Println("error: ", err)
 			}
-			close(ping)
+			close(pinger.ping)
 			break
 		default:
-			ping <- i
+			pinger.ping <- i
 			time.Sleep(time.Second)
 		}
 	}
