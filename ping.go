@@ -6,29 +6,16 @@ package main
 import (
 	"context"
 	"flag"
-	"fmt"
 	"log"
 	"time"
+
+	"./pinger"
 )
-
-type pinger struct {
-	ping chan int
-}
-
-func newPinger() *pinger {
-	return &pinger{
-		ping: make(chan int),
-	}
-}
-
-func (pinger *pinger) getPing() <-chan int { // define directionality of returned channel
-	return pinger.ping
-}
 
 func main() {
 	const defaultDuration = 3
 
-	pinger := newPinger()
+	_pinger := pinger.NewPinger()
 
 	// Get duration from -duration flag or use default duration. Flag needs to be parsed, otherwise fall back to defaultDuration.
 	duration := flag.Int("duration", defaultDuration, "specify how many seconds to run")
@@ -43,28 +30,9 @@ func main() {
 	defer cancel()
 
 	// Handle the ping event by printing the value to standard output.
-	go func() {
-		ping := pinger.getPing()
-		for i := range ping {
-			fmt.Printf("%d \n", i)
-		}
-	}()
+	go pinger.HandlePing(_pinger)
 
 	// As long as the context has not timed out, send ping.
 	// Once the context is done, close channel and terminate program.
-	for i := 1; ctx.Err() == nil; i++ {
-		select {
-		case <-ctx.Done():
-			fmt.Println("timeout: ", time.Now())
-			err := ctx.Err()
-			if err != nil {
-				fmt.Println("error: ", err)
-			}
-			close(pinger.ping)
-			break
-		default:
-			pinger.ping <- i
-			time.Sleep(time.Second)
-		}
-	}
+	pinger.SendPing(ctx, _pinger)
 }
