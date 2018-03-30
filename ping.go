@@ -21,7 +21,7 @@ func newPinger() *pinger {
 	}
 }
 
-func (pinger *pinger) getPing() <-chan int {
+func (pinger *pinger) getPing() <-chan int { // define directionality of returned channel
 	return pinger.ping
 }
 
