@@ -29,7 +29,7 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*time.Duration(*duration))
 	defer cancel()
 
-	go pinger.HandlePing(ping)
+	go pinger.HandlePing("pong", ping)
 
 	pinger.SendPing(ctx, ping)
 }
