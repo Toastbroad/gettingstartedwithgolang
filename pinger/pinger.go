@@ -6,24 +6,16 @@ import (
 	"time"
 )
 
-type pinger struct {
-	ping chan int
-}
-
-func NewPinger() *pinger {
-	return &pinger{
-		ping: make(chan int),
-	}
-}
-
-func HandlePing(pinger *pinger) {
-	ping := pinger.GetSendPing()
+// HandlePing handles the ping event by printing the value to standard output.
+func HandlePing(ping <-chan int) {
 	for i := range ping {
 		fmt.Printf("%d \n", i)
 	}
 }
 
-func SendPing(ctx context.Context, pinger *pinger) {
+// SendPing sends ping as long as the context has not timed out.
+// Once the context is done, close channel and terminate program.
+func SendPing(ctx context.Context, ping chan<- int) {
 	for i := 1; ctx.Err() == nil; i++ {
 		select {
 		case <-ctx.Done():
@@ -32,19 +24,11 @@ func SendPing(ctx context.Context, pinger *pinger) {
 			if err != nil {
 				fmt.Println("error: ", err)
 			}
-			close(pinger.GetReceivePing())
+			close(ping)
 			break
 		default:
-			pinger.GetReceivePing() <- i
+			ping <- i
 			time.Sleep(time.Second)
 		}
 	}
-}
-
-func (pinger *pinger) GetSendPing() <-chan int { // define directionality of returned channel
-	return pinger.ping
-}
-
-func (pinger *pinger) GetReceivePing() chan<- int { // define directionality of returned channel
-	return pinger.ping
 }

@@ -15,7 +15,7 @@ import (
 func main() {
 	const defaultDuration = 3
 
-	_pinger := pinger.NewPinger()
+	ping := make(chan int)
 
 	// Get duration from -duration flag or use default duration. Flag needs to be parsed, otherwise fall back to defaultDuration.
 	duration := flag.Int("duration", defaultDuration, "specify how many seconds to run")
@@ -29,10 +29,7 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*time.Duration(*duration))
 	defer cancel()
 
-	// Handle the ping event by printing the value to standard output.
-	go pinger.HandlePing(_pinger)
+	go pinger.HandlePing(ping)
 
-	// As long as the context has not timed out, send ping.
-	// Once the context is done, close channel and terminate program.
-	pinger.SendPing(ctx, _pinger)
+	pinger.SendPing(ctx, ping)
 }
