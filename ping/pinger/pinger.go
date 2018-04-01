@@ -7,15 +7,19 @@ import (
 )
 
 // HandlePing handles the ping event by printing the value to standard output.
-func HandlePing(msg string, ping <-chan int) {
+func HandlePing(msg string, ping <-chan int, handler func(string, int)) {
 	for i := range ping {
-		fmt.Printf("%s %d \n", msg, i)
+		//fmt.Printf("%s %d \n", msg, i)
+		handler(msg, i)
 	}
 }
 
-// SendPing sends ping as long as the context has not timed out.
+// SendPingWithContext sends ping as long as the context has not timed out.
 // Once the context is done, close channel and terminate program.
-func SendPing(ctx context.Context, ping chan<- int) {
+func SendPingWithContext(ctx context.Context, ping chan<- int) {
+	deadline, ok := ctx.Deadline()
+	fmt.Println("Deadline: ", deadline)
+	fmt.Println("Ok: ", ok)
 	for i := 1; ctx.Err() == nil; i++ {
 		select {
 		case <-ctx.Done():

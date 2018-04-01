@@ -6,6 +6,7 @@ package main
 import (
 	"context"
 	"flag"
+	"fmt"
 	"log"
 	"time"
 
@@ -29,7 +30,11 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*time.Duration(*duration))
 	defer cancel()
 
-	go pinger.HandlePing("pong", ping)
-
-	pinger.SendPing(ctx, ping)
+	go pinger.HandlePing("pong #1", ping, func(msg string, i int) {
+		fmt.Printf("%s %d \n", msg, i)
+	})
+	go pinger.HandlePing("pong #2", ping, func(msg string, i int) {
+		fmt.Printf("%s %d \n", msg, i)
+	})
+	pinger.SendPingWithContext(ctx, ping)
 }
