@@ -9,7 +9,6 @@ import (
 // HandlePing handles the ping event by printing the value to standard output.
 func HandlePing(msg string, ping <-chan int, handler func(string, int)) {
 	for i := range ping {
-		//fmt.Printf("%s %d \n", msg, i)
 		handler(msg, i)
 	}
 }
