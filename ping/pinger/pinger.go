@@ -3,6 +3,7 @@ package pinger
 import (
 	"context"
 	"fmt"
+	"log"
 	"time"
 )
 
@@ -17,21 +18,18 @@ func HandlePing(msg string, ping <-chan int, handler func(string, int)) {
 // Once the context is done, close channel and terminate program.
 func SendPingWithContext(ctx context.Context, ping chan<- int) {
 	deadline, ok := ctx.Deadline()
-	fmt.Println("Deadline: ", deadline)
-	fmt.Println("Ok: ", ok)
-	for i := 1; ctx.Err() == nil; i++ {
-		select {
-		case <-ctx.Done():
-			fmt.Println("timeout: ", time.Now())
-			err := ctx.Err()
-			if err != nil {
-				fmt.Println("error: ", err)
-			}
-			close(ping)
-			break
-		default:
+
+	if !ok {
+		log.Fatal("something went wrong")
+	} else {
+		fmt.Println("deadline: ", deadline)
+
+		for i := 1; ctx.Err() == nil; i++ {
 			ping <- i
 			time.Sleep(time.Second)
 		}
+
+		fmt.Println("deadline reached: ", time.Now())
 	}
+
 }
